@@ -15,9 +15,45 @@ class MainViewModel: ObservableObject {
     @Published var cost: Int = 0
     @Published var error: String?
     @Published var categories: [String] = []
-    @Published var isPaymentConfirmed: Bool = false
-    @Published var isRejected: Bool = false
+    @Published var alertOption: AlertOption? = nil
     
+    
+    enum AlertOption: Identifiable {
+        case paymentConfirmed
+        case paymentRejected
+        case otherAlert(title: String, message: String, dismissButtonTitle: String)
+        
+        var id: Int {
+            switch self {
+            case .paymentConfirmed:
+                return 0
+            case .paymentRejected:
+                return 1
+            case .otherAlert(title: _, message: _, dismissButtonTitle: _):
+                return 2
+                
+            }
+        }
+    }
+    
+    
+    @Published var isPaymentConfirmed: Bool = false {
+        didSet {
+            if isPaymentConfirmed {
+                alertOption = .paymentConfirmed
+                isPaymentConfirmed = false
+            }
+        }
+    }
+    
+    @Published var isPaymentRejected: Bool = false {
+        didSet {
+            if isPaymentRejected {
+                alertOption = .paymentRejected
+                isPaymentRejected = false  // Reset the flag
+            }
+        }
+    }
     
     init() {
         fetchProducts()
@@ -40,29 +76,30 @@ class MainViewModel: ObservableObject {
     
     func addToCart(product: Product) {
         
-        let price = product.price
-        
-        if balance >= price {
-            if let index = cart.firstIndex(where: { $0.product.id == product.id }) {
-                cost += product.price
-                cart[index].quantity += 1
-                balance -= price
-            } else {
-                let newItem = Cart(product: product, quantity: 1)
-                cart.append(newItem)
-                cost += product.price
-                balance -= price
-            }
+        if let index = cart.firstIndex(where: { $0.product.id == product.id }) {
+            cost += product.price
+            cart[index].quantity += 1
         } else {
-            isRejected = true
+            let newItem = Cart(product: product, quantity: 1)
+            cart.append(newItem)
+            cost += product.price
         }
     }
     
     func checkout() {
-        cost = 0
-        cart = []
-        isPaymentConfirmed = true
+        if balance >= cost {
+            balance -= cost
+            cost = 0
+            cart = []
+            isPaymentConfirmed = true
+        }
+        else {
+            balance -= cost
+            cost = 0
+            cart = []
+            isPaymentRejected = true
+        }
     }
-
+    
 }
 

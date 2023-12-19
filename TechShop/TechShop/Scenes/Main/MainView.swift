@@ -11,7 +11,7 @@ struct MainView: View {
     @EnvironmentObject var viewModel: MainViewModel
     @State var path = NavigationPath()
     @State private var selectedTab = 0
-
+    
     let gridLayout = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible())
@@ -38,12 +38,29 @@ struct MainView: View {
                     Text("Categories")
                 }
                 .tag(1)
-        }.alert(isPresented: $viewModel.isPaymentConfirmed) {
-            Alert(
-                title: Text("Payment Confirmed"),
-                message: Text("Your payment has been confirmed."),
-                dismissButton: .default(Text("OK"))
-            )
+        }.alert(item: $viewModel.alertOption) { alertOption in
+            switch alertOption {
+            case .paymentConfirmed:
+                return Alert(
+                    title: Text("Payment Confirmed"),
+                    message: Text("Your payment has been confirmed."),
+                    dismissButton: .default(Text("OK"))
+                )
+
+            case .paymentRejected:
+                return Alert(
+                    title: Text("Payment Rejected"),
+                    message: Text("Your payment has been rejected."),
+                    dismissButton: .default(Text("OK"))
+                )
+
+            case .otherAlert(title: let title, message: let message, dismissButtonTitle: let dismissButtonTitle):
+                return Alert(
+                    title: Text(title),
+                    message: Text(message),
+                    dismissButton: .default(Text(dismissButtonTitle))
+                )
+            }
         }
     }
     
