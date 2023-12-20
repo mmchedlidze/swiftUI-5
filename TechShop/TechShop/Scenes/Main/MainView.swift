@@ -32,7 +32,7 @@ struct MainView: View {
             }
             .tag(0)
             
-            CategoriesTabView()
+            CategoriesTabView(path: $path)
                 .tabItem {
                     Image(systemName: "list.dash")
                     Text("Categories")

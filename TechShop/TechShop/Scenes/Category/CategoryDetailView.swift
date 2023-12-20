@@ -10,6 +10,8 @@ import SwiftUI
 struct CategoryDetailView: View {
     let category: String
     @EnvironmentObject var viewModel: MainViewModel
+    @Binding var path: NavigationPath
+
     let gridLayout = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible())
@@ -22,11 +24,17 @@ struct CategoryDetailView: View {
             CartCard()
         }
     }
-    var details: some View {
-        ScrollView{
+    private var details: some View {
+        ScrollView {
             LazyVGrid(columns: gridLayout) {
-                ForEach(viewModel.products.filter { $0.category == category }) { product in
-                    ProductCard(product: product)
+                ForEach(viewModel.products) { product in
+                    NavigationLink(
+                        destination: ProductDetailsView(path: $path, product: product),
+                        tag: product,
+                        selection: $viewModel.selectedProduct
+                    ) {
+                        ProductCard(product: product)
+                    }
                 }
             }
         }

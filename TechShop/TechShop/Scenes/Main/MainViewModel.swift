@@ -16,6 +16,7 @@ class MainViewModel: ObservableObject {
     @Published var error: String?
     @Published var categories: [String] = []
     @Published var alertOption: AlertOption? = nil
+    @Published var selectedProduct: Product?
     
     
     enum AlertOption: Identifiable {
